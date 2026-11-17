@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create a site - WordPress.com (intra-turn prototype)</title>
+<style>
+:root{--bg:#000;--fg:#fff;--mut:#8b8b90;--card:#161618;--card2:#1f1f22;--line:#2a2a2e;--acc:#7aa2ff;--ok:#7bd88f;--okbg:#14261a;--btn:#fff;--btnfg:#000}
+:root[data-theme=light]{--bg:#fff;--fg:#111;--mut:#6b6b70;--card:#f4f4f5;--card2:#e9e9ec;--line:#dcdce0;--acc:#3858e9;--ok:#1a7f37;--okbg:#e4f5e8;--btn:#111;--btnfg:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;font-size:14px;color:var(--mut)}
+header b{color:var(--fg);font-weight:600}
+header .r{display:flex;gap:16px;align-items:center}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+a{color:var(--fg)}
+main{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px 20px 80px}
+.wrap{width:100%;max-width:640px}
+h1{font-size:28px;line-height:36px;font-weight:400;text-align:center;margin:0 0 20px}
+h1 span{display:inline-block;animation:in .5s both}
+@keyframes in{from{opacity:0;filter:blur(6px);transform:translateY(4px)}}
+.sub{color:var(--mut);text-align:center;font-size:14px;margin:-8px 0 20px}
+.composer{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:999px;padding:8px 8px 8px 20px;border:1px solid transparent}
+.composer:focus-within{border-color:var(--line)}
+.composer input,.composer textarea{flex:1;background:none;border:0;outline:0;color:var(--fg);font:inherit;resize:none;padding:6px 0}
+.composer.tall{border-radius:24px;align-items:flex-end}
+.send{width:36px;height:36px;border-radius:50%;background:var(--btn);color:var(--btnfg);display:grid;place-items:center;font-size:18px;flex:none}
+.send:disabled{opacity:.25;cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:14px;color:var(--fg)}
+.chip:hover{background:var(--card)}
+.note{color:var(--mut);font-size:12px;text-align:center;margin-top:12px}
+.or{color:var(--mut);font-size:12px;text-align:center;margin:14px 0}
+/* feedforward */
+.ff{margin-top:20px;display:flex;flex-direction:column}
+.ff .lab{font-size:12px;color:var(--mut);margin-bottom:6px;padding:0 4px}
+.row{display:flex;align-items:center;gap:12px;padding:10px 4px;border-top:1px solid var(--line);font-size:15px;animation:in .35s both}
+.row .k{width:92px;color:var(--mut);font-size:13px;flex:none}
+.row .v{flex:1}
+.row .v u{text-decoration:underline dotted;text-underline-offset:4px;cursor:pointer}
+.row .g{font-size:12px;color:var(--ok);background:var(--okbg);padding:2px 10px;border-radius:999px;flex:none}
+.row .g.q{color:var(--mut);background:var(--card)}
+/* blanks sentence */
+.sentence{font-size:26px;line-height:2.1;text-align:center;font-weight:400}
+.blank{display:inline-block;min-width:90px;border-bottom:1.5px dotted var(--mut);color:var(--mut);padding:0 6px;cursor:pointer;line-height:1.3}
+.blank.f{color:var(--fg);border-bottom-color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,transparent);border-radius:6px 6px 0 0}
+.pop{position:absolute;z-index:5;background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:6px;min-width:260px;max-width:340px;text-align:left;font-size:15px;line-height:1.4;box-shadow:0 12px 40px #0006}
+.pop button{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:10px}
+.pop button:hover,.pop button.on{background:var(--card)}
+.pop small{color:var(--mut);display:block;font-size:12px}
+.pop input{width:100%;background:var(--card);border:0;outline:0;color:var(--fg);padding:9px 10px;border-radius:10px;font:inherit;margin-bottom:4px}
+.pop .t{display:flex;justify-content:space-between;gap:12px}
+.cta{display:flex;justify-content:center;margin-top:28px}
+.btn{background:var(--btn);color:var(--btnfg);border-radius:999px;padding:11px 24px;font-weight:600}
+.btn:disabled{opacity:.25;cursor:default}
+.btn.ghost{background:var(--card);color:var(--fg)}
+.sum{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:20px}
+/* build */
+.steps{list-style:none;margin:0 auto;padding:0;max-width:360px}
+.steps li{display:flex;gap:10px;padding:8px 0;color:var(--mut);font-size:15px}
+.steps li.on{color:var(--fg)}.steps li.done{color:var(--fg)}
+.steps i{width:18px;flex:none;font-style:normal;color:var(--ok)}
+.site{background:var(--card);border-radius:20px;overflow:hidden;margin-top:24px;animation:in .6s both}
+.bar{display:flex;gap:6px;padding:12px 14px;align-items:center;background:var(--card2);font-size:12px;color:var(--mut)}
+.bar s{width:9px;height:9px;border-radius:50%;background:var(--line);text-decoration:none}
+.page{padding:36px 28px;text-align:center}
+.page h2{font-size:34px;margin:0 0 6px;font-weight:500;letter-spacing:-.5px}
+.page p{color:var(--mut);margin:0 0 18px}
+.nav{display:flex;gap:18px;justify-content:center;font-size:13px;color:var(--mut);margin-bottom:28px}
+.hero{height:90px;border-radius:12px;margin-top:8px}
+.back{position:fixed;left:20px;bottom:20px;color:var(--mut);font-size:14px}
+.dots{display:flex;gap:6px;justify-content:center;margin-bottom:24px}
+.dots i{width:22px;height:3px;border-radius:2px;background:var(--line)}.dots i.on{background:var(--fg)}
+.hid{display:none}
+@media(max-width:560px){.sentence{font-size:21px}h1{font-size:23px}}
+</style>
+</head>
+<body>
+<header>
+  <div><b>WordPress.com</b> / <span id="crumb">Create a site</span></div>
+  <div class="r"><span id="login">Have an account? <a href="#" id="loginBtn">Log in</a></span><button id="theme" aria-label="Toggle theme">&#9790;</button></div>
+</header>
+<main><div class="wrap" id="root"></div></main>
+<button class="back hid" id="back">&larr; Back</button>
+
+<script>
+const $=s=>document.querySelector(s);
+const root=$('#root');
+const S={step:0,email:'',idea:'',type:'',name:'',audience:'',style:'',domain:'',plan:'',pages:''};
+const TYPES=[['Blog','Write and publish posts'],['Business site','Services, contact, about'],['Online store','Sell products'],['Portfolio','Show your work'],['Newsletter','Grow an audience']];
+const STYLES=[['Clean and quiet','Lots of white space'],['Bold','Big type, strong colour'],['Warm','Soft, friendly, handmade'],['Editorial','Magazine feel']];
+const PLANS=[['Free','$0 · wordpress.com address, 1 GB'],['Personal','$4/mo · custom domain, no ads'],['Premium','$8/mo · premium themes, payments'],['Business','$25/mo · plugins, SFTP, 50 GB']];
+const HUES={'Clean and quiet':['#e8ecef','#cfd8dc'],'Bold':['#ff5a36','#ffb300'],'Warm':['#f3c9a6','#e59a7b'],'Editorial':['#222','#555']};
+
+const slug=t=>(t||'').toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,24);
+function title(t){return t.replace(/\b\w/g,c=>c.toUpperCase())}
+
+/* ---- read the user's words and guess what to set up (feedforward) ---- */
+function guess(text){
+  const t=text.toLowerCase(),o={};
+  if(/shop|store|sell|product|merch/.test(t))o.type='Online store';
+  else if(/portfolio|my work|photograph|design(er)?\b|artist/.test(t))o.type='Portfolio';
+  else if(/newsletter|subscri/.test(t))o.type='Newsletter';
+  else if(/blog|write|writing|stories|recipes|travel/.test(t))o.type='Blog';
+  else if(/business|studio|agency|service|consult|bakery|cafe|salon|clinic|company/.test(t))o.type='Business site';
+  const nm=text.match(/(?:called|named)\s+["']?([A-Z][\w&' ]{1,28}?)["']?(?=$|[,.]| for| that| with| about)/);
+  if(nm)o.name=nm[1].trim();
+  const au=text.match(/\bfor\s+([a-z ]{3,30}?)(?=$|[,.]| with| that| in )/i);
+  if(au)o.audience=au[1].trim();
+  if(/bold|colou?rful|loud/.test(t))o.style='Bold';
+  else if(/warm|cozy|friendly|handmade/.test(t))o.style='Warm';
+  else if(/magazine|editorial|journal/.test(t))o.style='Editorial';
+  else if(/minimal|clean|simple|quiet/.test(t))o.style='Clean and quiet';
+  return o;
+}
+
+function headline(txt){
+  return '<h1>'+txt.split(' ').map((w,i)=>`<span style="animation-delay:${80+i*50}ms">${w}</span>`).join(' ')+'</h1>';
+}
+function setCrumb(t){$('#crumb').textContent=t}
+
+/* ---- step 0: account ---- */
+function account(){
+  setCrumb('Create a site');
+  root.innerHTML=headline('Let’s build your site.')+
+  `<p class="sub">Start with an account. You can describe the site right after.</p>
+  <div class="chips" style="margin:0 0 18px">
+    <button class="chip" data-sso="Google">Continue with Google</button>
+    <button class="chip" data-sso="Apple">Continue with Apple</button>
+    <button class="chip" data-sso="GitHub">Continue with GitHub</button>
+  </div>
+  <div class="or">or</div>
+  <form class="composer" id="f"><input id="em" type="email" placeholder="Email address" autocomplete="email" required><button class="send" id="go" disabled aria-label="Continue">&uarr;</button></form>
+  <div class="note">By continuing you agree to the Terms of Service and have read the Privacy Policy.</div>`;
+  const em=$('#em'),go=$('#go');
+  em.oninput=()=>go.disabled=!/^\S+@\S+\.\S+$/.test(em.value);
+  $('#f').onsubmit=e=>{e.preventDefault();S.email=em.value;next(1)};
+  root.querySelectorAll('[data-sso]').forEach(b=>b.onclick=()=>{S.email='you@'+b.dataset.sso.toLowerCase()+'.com';next(1)});
+  em.focus();
+}
+
+/* ---- step 1: describe + plan preview (feedforward) ---- */
+let pop=null;
+function closePop(){if(pop){pop.remove();pop=null}}
+const OVER={};
+const DEF={type:'Business site',name:'My Site',audience:'anyone',style:'Clean and quiet',plan:'Free'};
+function plan(){
+  const g=guess(S.idea),p={},src={};
+  for(const f of ['type','name','audience','style']){
+    if(OVER[f]){p[f]=OVER[f];src[f]='you'}
+    else if(g[f]){p[f]=g[f];src[f]='words'}
+    else{p[f]=DEF[f];src[f]='assumed'}
+  }
+  p.plan=OVER.plan||'Free';src.plan=OVER.plan?(OVER.planAuto?'auto':'you'):'assumed';
+  p.domain=OVER.domain||slug(p.name)+'.wordpress.com';src.domain=OVER.domain?'you':(src.name==='assumed'?'assumed':'name');
+  if(!OVER.domain&&OVER.name)src.domain='name';
+  return {p,src};
+}
+function describe(){
+  setCrumb('Describe it');
+  $('#login').classList.add('hid');
+  root.innerHTML=headline('I start setting up before you finish typing.')+
+  `<div class="composer tall"><textarea id="ta" rows="2" placeholder="Describe the site you want">${S.idea}</textarea><button class="send" id="go" aria-label="Create site">&uarr;</button></div>
+  <div class="ff" id="ff"></div>
+  <div class="chips" id="ex">
+    <button class="chip">A blog called Slow Mornings about travel with kids</button>
+    <button class="chip">Online store called Kiln &amp; Co for handmade ceramics</button>
+    <button class="chip">Portfolio for a photographer, bold</button>
+  </div>`;
+  const ta=$('#ta'),ff=$('#ff'),go=$('#go');
+  const rows=[['Type','type'],['Name','name'],['For','audience'],['Style','style'],['Address','domain'],['Plan','plan']];
+  function draw(){
+    S.idea=ta.value;go.disabled=!ta.value.trim();
+    if(!ta.value.trim()){ff.innerHTML='';$('#ex').classList.remove('hid');return}
+    $('#ex').classList.add('hid');
+    const {p,src}=plan();Object.assign(S,p);
+    ff.innerHTML='<div class="lab">Before you send, here is what I will do. Tap anything to change it.</div>'+rows.map(([k,f])=>
+      `<div class="row" style="animation:none"><div class="k">${k}</div><div class="v"><u data-f="${f}">${p[f]}</u></div><div class="g ${src[f]==='assumed'?'q':''}">${({you:'your edit',words:'from your words',name:'follows the name',auto:'needed for that domain'})[src[f]]||'assumed'}</div></div>`).join('');
+    ff.querySelectorAll('u').forEach(u=>u.onclick=e=>{e.stopPropagation();openPop(u,draw)});
+  }
+  ta.oninput=draw;
+  ta.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&ta.value.trim()){e.preventDefault();proceed()}};
+  go.onclick=proceed;
+  $('#ex').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ta.value=c.textContent;draw();ta.focus()});
+  function proceed(){if(!ta.value.trim())return;draw();next(2)}
+  draw();ta.focus();
+}
+function openPop(btn,after){
+  closePop();const f=btn.dataset.f;
+  pop=document.createElement('div');pop.className='pop';
+  const r=btn.getBoundingClientRect();
+  pop.style.left=Math.max(12,Math.min(innerWidth-352,r.left+scrollX-20))+'px';
+  pop.style.top=(r.bottom+scrollY+8)+'px';
+  const set=v=>{OVER[f]=v;if(f==='plan')delete OVER.planAuto;if(f==='name')delete OVER.domain;closePop();after()};
+  if(f==='type'||f==='style'||f==='plan'){
+    const L=f==='type'?TYPES:f==='style'?STYLES:PLANS;
+    pop.innerHTML=L.map(([a,b])=>`<button class="${S[f]===a?'on':''}" data-v="${a}">${a}<small>${b}</small></button>`).join('');
+    pop.onclick=e=>{const b=e.target.closest('button');if(b)set(b.dataset.v)};
+  }else if(f==='domain'){
+    const s=slug(S.name)||'mysite';
+    const opts=[[s+'.wordpress.com','free'],[s+'.com','$18/yr'],[s+'.studio','$24/yr'],['get'+s+'.com','$18/yr']];
+    pop.innerHTML=opts.map(([d,c])=>`<button data-v="${d}"><span class="t"><span>${d}</span><small>${c}</small></span></button>`).join('');
+    pop.onclick=e=>{const b=e.target.closest('button');if(b){const v=b.dataset.v;if(!v.endsWith('.wordpress.com')&&(OVER.plan||'Free')==='Free'){OVER.plan='Personal';OVER.planAuto=1}set(v)}};
+  }else{
+    pop.innerHTML=`<input placeholder="${f==='name'?'Site name':'Who is it for?'}" value="${S[f]||''}">`;
+    const inp=pop.querySelector('input');
+    inp.onkeydown=e=>{if(e.key==='Enter'&&inp.value.trim())set(inp.value.trim())};
+    setTimeout(()=>inp.focus());
+  }
+  document.body.appendChild(pop);
+}
+document.addEventListener('click',e=>{if(pop&&!pop.contains(e.target))closePop()});
+
+/* ---- step 3: build + done ---- */
+function build(){
+  setCrumb('Building');closePop();
+  $('#back').classList.add('hid');
+  const items=['Creating your account','Setting up '+S.domain,'Choosing a '+S.style.toLowerCase()+' theme','Writing starter pages','Getting the editor ready'];
+  root.innerHTML=headline('Building '+S.name+'.')+`<ul class="steps" id="st">${items.map(t=>`<li><i></i>${t}</li>`).join('')}</ul><div id="out"></div>`;
+  const lis=[...root.querySelectorAll('li')];let i=0;
+  (function tick(){
+    if(i>0){lis[i-1].classList.remove('on');lis[i-1].classList.add('done');lis[i-1].querySelector('i').textContent='✓'}
+    if(i<lis.length){lis[i].classList.add('on');i++;setTimeout(tick,650)}else done();
+  })();
+}
+function done(){
+  const [a,b]=HUES[S.style]||HUES['Clean and quiet'];
+  const dark=S.style==='Editorial';
+  const pages=S.type==='Online store'?['Shop','About','Contact']:S.type==='Blog'?['Posts','About','Contact']:S.type==='Newsletter'?['Archive','About','Subscribe']:S.type==='Portfolio'?['Work','About','Contact']:['Services','About','Contact'];
+  $('#out').innerHTML=`<div class="site"><div class="bar"><s></s><s></s><s></s><span style="margin-left:8px">${S.domain}</span></div>
+  <div class="page" style="${dark?'background:#111;color:#fff':'background:#fff;color:#111'}"><div class="nav" style="color:${dark?'#aaa':'#777'}">${pages.join(' &nbsp;&nbsp; ')}</div>
+  <h2>${S.name}</h2><p style="color:${dark?'#aaa':'#666'}">${S.audience?'A '+S.type.toLowerCase()+(S.audience==='anyone'?'':' for '+S.audience)+'.':'A '+S.type.toLowerCase()+'.'}</p>
+  <div class="hero" style="background:linear-gradient(120deg,${a},${b})"></div></div></div>
+  <div class="cta" style="gap:10px"><button class="btn" onclick="alert('Prototype: this would open the editor.')">Open the editor</button><button class="btn ghost" id="again">Start over</button></div>
+  <div class="note">${S.plan} plan${S.domain.endsWith('.wordpress.com')?'':' · '+S.domain+' will be added at checkout'} · Account: ${S.email}</div>`;
+  $('#again').onclick=()=>{Object.assign(S,{email:'',idea:'',type:'',name:'',audience:'',style:'',domain:'',plan:''});for(const k in OVER)delete OVER[k];$('#login').classList.remove('hid');next(0)};
+}
+
+const VIEWS=[account,describe,build,build];
+function next(n){S.step=n;closePop();$('#back').classList.toggle('hid',n===0||n>=2);VIEWS[n]()}
+$('#back').onclick=()=>next(Math.max(0,S.step-1));
+$('#theme').onclick=()=>{const l=document.documentElement.dataset.theme==='light';document.documentElement.dataset.theme=l?'dark':'light'};
+$('#loginBtn').onclick=e=>{e.preventDefault();alert('Prototype: log in flow not built.')};
+next(0);
+</script>
+</body>
+</html>
