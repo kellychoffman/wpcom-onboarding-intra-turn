@@ -72,6 +72,10 @@ h1 span{display:inline-block;animation:in .5s both}
 .dots{display:flex;gap:6px;justify-content:center;margin-bottom:24px}
 .dots i{width:22px;height:3px;border-radius:2px;background:var(--line)}.dots i.on{background:var(--fg)}
 .hid{display:none}
+.sw{animation:swap .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes swap{from{opacity:0;transform:translateY(8px);filter:blur(5px)}}
+.g.sw{animation:swap .45s .08s cubic-bezier(.2,.8,.2,1) both}
+.lab{animation:in .4s both}
 @media(max-width:560px){.sentence{font-size:21px}h1{font-size:23px}}
 </style>
 </head>
@@ -119,26 +123,6 @@ function headline(txt){
 }
 function setCrumb(t){$('#crumb').textContent=t}
 
-/* ---- step 0: account ---- */
-function account(){
-  setCrumb('Create a site');
-  root.innerHTML=headline('Let’s build your site.')+
-  `<p class="sub">Start with an account. You can describe the site right after.</p>
-  <div class="chips" style="margin:0 0 18px">
-    <button class="chip" data-sso="Google">Continue with Google</button>
-    <button class="chip" data-sso="Apple">Continue with Apple</button>
-    <button class="chip" data-sso="GitHub">Continue with GitHub</button>
-  </div>
-  <div class="or">or</div>
-  <form class="composer" id="f"><input id="em" type="email" placeholder="Email address" autocomplete="email" required><button class="send" id="go" disabled aria-label="Continue">&uarr;</button></form>
-  <div class="note">By continuing you agree to the Terms of Service and have read the Privacy Policy.</div>`;
-  const em=$('#em'),go=$('#go');
-  em.oninput=()=>go.disabled=!/^\S+@\S+\.\S+$/.test(em.value);
-  $('#f').onsubmit=e=>{e.preventDefault();S.email=em.value;next(1)};
-  root.querySelectorAll('[data-sso]').forEach(b=>b.onclick=()=>{S.email='you@'+b.dataset.sso.toLowerCase()+'.com';next(1)});
-  em.focus();
-}
-
 /* ---- step 1: describe + plan preview (feedforward) ---- */
 let pop=null;
 function closePop(){if(pop){pop.remove();pop=null}}
@@ -158,8 +142,7 @@ function plan(){
 }
 function describe(){
   setCrumb('Describe it');
-  $('#login').classList.add('hid');
-  root.innerHTML=headline('I start setting up before you finish typing.')+
+  root.innerHTML=headline('Let\u2019s build your site.')+
   `<div class="composer tall"><textarea id="ta" rows="2" placeholder="Describe the site you want">${S.idea}</textarea><button class="send" id="go" aria-label="Create site">&uarr;</button></div>
   <div class="ff" id="ff"></div>
   <div class="chips" id="ex">
@@ -169,20 +152,33 @@ function describe(){
   </div>`;
   const ta=$('#ta'),ff=$('#ff'),go=$('#go');
   const rows=[['Type','type'],['Name','name'],['For','audience'],['Style','style'],['Address','domain'],['Plan','plan']];
+  let built=false,prev={};
+  const TAG={you:'your edit',words:'from your words',name:'follows the name',auto:'needed for that domain'};
   function draw(){
     S.idea=ta.value;go.disabled=!ta.value.trim();
-    if(!ta.value.trim()){ff.innerHTML='';$('#ex').classList.remove('hid');return}
+    if(!ta.value.trim()){ff.innerHTML='';built=false;prev={};$('#ex').classList.remove('hid');return}
     $('#ex').classList.add('hid');
     const {p,src}=plan();Object.assign(S,p);
-    ff.innerHTML='<div class="lab">Before you send, here is what I will do. Tap anything to change it.</div>'+rows.map(([k,f])=>
-      `<div class="row" style="animation:none"><div class="k">${k}</div><div class="v"><u data-f="${f}">${p[f]}</u></div><div class="g ${src[f]==='assumed'?'q':''}">${({you:'your edit',words:'from your words',name:'follows the name',auto:'needed for that domain'})[src[f]]||'assumed'}</div></div>`).join('');
-    ff.querySelectorAll('u').forEach(u=>u.onclick=e=>{e.stopPropagation();openPop(u,draw)});
+    if(!built){
+      ff.innerHTML='<div class="lab">Before you send, here is what I will do. Tap anything to change it.</div>'+rows.map(([k,f],i)=>
+        `<div class="row" style="animation-delay:${120+i*90}ms"><div class="k">${k}</div><div class="v"><u data-f="${f}"></u></div><div class="g"></div></div>`).join('');
+      ff.querySelectorAll('u').forEach(u=>u.onclick=e=>{e.stopPropagation();openPop(u,draw)});
+      built=true;prev={};
+    }
+    for(const [k,f] of rows){
+      const u=ff.querySelector(`u[data-f="${f}"]`),g=u.parentNode.nextElementSibling;
+      const tag=TAG[src[f]]||'assumed';
+      if(prev[f]!==p[f]){u.textContent=p[f];if(prev[f]!==undefined)retrig(u)}
+      if(prev[f+'t']!==tag){g.textContent=tag;g.className='g'+(tag==='assumed'?' q':'');if(prev[f+'t']!==undefined)retrig(g)}
+      prev[f]=p[f];prev[f+'t']=tag;
+    }
   }
+  function retrig(el){el.classList.remove('sw');void el.offsetWidth;el.classList.add('sw')}
   ta.oninput=draw;
   ta.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&ta.value.trim()){e.preventDefault();proceed()}};
   go.onclick=proceed;
   $('#ex').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ta.value=c.textContent;draw();ta.focus()});
-  function proceed(){if(!ta.value.trim())return;draw();next(2)}
+  function proceed(){if(!ta.value.trim())return;draw();next(1)}
   draw();ta.focus();
 }
 function openPop(btn,after){
@@ -215,7 +211,7 @@ document.addEventListener('click',e=>{if(pop&&!pop.contains(e.target))closePop()
 function build(){
   setCrumb('Building');closePop();
   $('#back').classList.add('hid');
-  const items=['Creating your account','Setting up '+S.domain,'Choosing a '+S.style.toLowerCase()+' theme','Writing starter pages','Getting the editor ready'];
+  const items=['Setting up '+S.domain,'Choosing a '+S.style.toLowerCase()+' theme','Writing starter pages','Getting the editor ready'];
   root.innerHTML=headline('Building '+S.name+'.')+`<ul class="steps" id="st">${items.map(t=>`<li><i></i>${t}</li>`).join('')}</ul><div id="out"></div>`;
   const lis=[...root.querySelectorAll('li')];let i=0;
   (function tick(){
@@ -232,12 +228,12 @@ function done(){
   <h2>${S.name}</h2><p style="color:${dark?'#aaa':'#666'}">${S.audience?'A '+S.type.toLowerCase()+(S.audience==='anyone'?'':' for '+S.audience)+'.':'A '+S.type.toLowerCase()+'.'}</p>
   <div class="hero" style="background:linear-gradient(120deg,${a},${b})"></div></div></div>
   <div class="cta" style="gap:10px"><button class="btn" onclick="alert('Prototype: this would open the editor.')">Open the editor</button><button class="btn ghost" id="again">Start over</button></div>
-  <div class="note">${S.plan} plan${S.domain.endsWith('.wordpress.com')?'':' · '+S.domain+' will be added at checkout'} · Account: ${S.email}</div>`;
-  $('#again').onclick=()=>{Object.assign(S,{email:'',idea:'',type:'',name:'',audience:'',style:'',domain:'',plan:''});for(const k in OVER)delete OVER[k];$('#login').classList.remove('hid');next(0)};
+  <div class="note">${S.plan} plan${S.domain.endsWith('.wordpress.com')?'':' · '+S.domain+' will be added at checkout'}</div>`;
+  $('#again').onclick=()=>{Object.assign(S,{email:'',idea:'',type:'',name:'',audience:'',style:'',domain:'',plan:''});for(const k in OVER)delete OVER[k];next(0)};
 }
 
-const VIEWS=[account,describe,build,build];
-function next(n){S.step=n;closePop();$('#back').classList.toggle('hid',n===0||n>=2);VIEWS[n]()}
+const VIEWS=[describe,build];
+function next(n){S.step=n;closePop();$('#back').classList.toggle('hid',n===0);VIEWS[n]()}
 $('#back').onclick=()=>next(Math.max(0,S.step-1));
 $('#theme').onclick=()=>{const l=document.documentElement.dataset.theme==='light';document.documentElement.dataset.theme=l?'dark':'light'};
 $('#loginBtn').onclick=e=>{e.preventDefault();alert('Prototype: log in flow not built.')};
