@@ -107,7 +107,7 @@ function guess(text){
   else if(/newsletter|subscri/.test(t))o.type='Newsletter';
   else if(/blog|write|writing|stories|recipes|travel/.test(t))o.type='Blog';
   else if(/business|studio|agency|service|consult|bakery|cafe|salon|clinic|company/.test(t))o.type='Business site';
-  const nm=text.match(/(?:called|named)\s+["']?([A-Z][\w&' ]{1,28}?)["']?(?=$|[,.]| for| that| with| about)/);
+  const nm=text.match(/(?:called|named)\s+["']?([A-Z][\w&' ]{1,28}?)["']?(?=$|[,.]| for| that| with| about| where| which)/);
   if(nm)o.name=nm[1].trim();
   const au=text.match(/\bfor\s+([a-z ]{3,30}?)(?=$|[,.]| with| that| in )/i);
   if(au)o.audience=au[1].trim();
@@ -149,7 +149,7 @@ function describe(){
   `<div class="composer tall"><textarea id="ta" rows="2" placeholder="Describe the site you want">${S.idea}</textarea><button class="send" id="go" aria-label="Create site">&uarr;</button></div>
   <div class="ff" id="ff"></div>
   <div class="chips" id="ex">
-    <button class="chip">A blog called Slow Mornings about travel with kids</button>
+    <button class="chip">A blog called Slow Mornings where I write a small daily meditation</button>
     <button class="chip">Online store called Kiln &amp; Co for handmade ceramics</button>
     <button class="chip">Portfolio for a photographer, bold</button>
   </div>`;
