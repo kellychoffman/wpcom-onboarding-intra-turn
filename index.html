@@ -111,6 +111,7 @@ function guess(text){
   if(nm)o.name=nm[1].trim();
   const au=text.match(/\bfor\s+([a-z ]{3,30}?)(?=$|[,.]| with| that| in )/i);
   if(au)o.audience=au[1].trim();
+  if(/\bprivate\b|invite|only (for|my|me|us|the)\b|just (for|my|me|us)\b|(family|friends|team|members|clients) only|not public/.test(t))o.vis='private';
   if(/bold|colou?rful|loud/.test(t))o.style='Bold';
   else if(/warm|cozy|friendly|handmade/.test(t))o.style='Warm';
   else if(/magazine|editorial|journal/.test(t))o.style='Editorial';
@@ -135,6 +136,8 @@ function plan(){
     else if(g[f]){p[f]=g[f];src[f]='words'}
     else{p[f]=DEF[f];src[f]='assumed'}
   }
+  p.vis=OVER.vis||g.vis||'public';src.vis=OVER.vis?'you':g.vis?'words':'assumed';
+  if(OVER.audience&&!OVER.vis&&!g.vis)src.vis='assumed';
   p.plan=OVER.plan||'Free';src.plan=OVER.plan?(OVER.planAuto?'auto':'you'):'assumed';
   p.domain=OVER.domain||slug(p.name)+'.wordpress.com';src.domain=OVER.domain?'you':(src.name==='assumed'?'assumed':'name');
   if(!OVER.domain&&OVER.name)src.domain='name';
@@ -152,6 +155,8 @@ function describe(){
   </div>`;
   const ta=$('#ta'),ff=$('#ff'),go=$('#go');
   const rows=[['Type','type'],['Name','name'],['For','audience'],['Style','style'],['Address','domain'],['Plan','plan']];
+  const VIS={public:'public when finished',private:'private, invite only'};
+  function disp(f,p){if(f!=='audience')return p[f];if(p.audience==='anyone')return p.vis==='private'?'Only people you invite, private':'Anyone, public when finished';return p.audience+', '+VIS[p.vis]}
   let built=false,prev={};
   const TAG={you:'your edit',words:'from your words',name:'follows the name',auto:'needed for that domain'};
   function draw(){
@@ -167,10 +172,12 @@ function describe(){
     }
     for(const [k,f] of rows){
       const u=ff.querySelector(`u[data-f="${f}"]`),g=u.parentNode.nextElementSibling;
-      const tag=TAG[src[f]]||'assumed';
-      if(prev[f]!==p[f]){u.textContent=p[f];if(prev[f]!==undefined)retrig(u)}
+      const k2=f==='audience'?(OVER.vis||OVER.audience?'you':src.vis==='words'?'words':src.audience):src[f];
+      const tag=TAG[k2]||'assumed';
+      const val=disp(f,p);
+      if(prev[f]!==val){u.textContent=val;if(prev[f]!==undefined)retrig(u)}
       if(prev[f+'t']!==tag){g.textContent=tag;g.className='g'+(tag==='assumed'?' q':'');if(prev[f+'t']!==undefined)retrig(g)}
-      prev[f]=p[f];prev[f+'t']=tag;
+      prev[f]=val;prev[f+'t']=tag;
     }
   }
   function retrig(el){el.classList.remove('sw');void el.offsetWidth;el.classList.add('sw')}
@@ -197,6 +204,11 @@ function openPop(btn,after){
     const opts=[[s+'.wordpress.com','free'],[s+'.com','$18/yr'],[s+'.studio','$24/yr'],['get'+s+'.com','$18/yr']];
     pop.innerHTML=opts.map(([d,c])=>`<button data-v="${d}"><span class="t"><span>${d}</span><small>${c}</small></span></button>`).join('');
     pop.onclick=e=>{const b=e.target.closest('button');if(b){const v=b.dataset.v;if(!v.endsWith('.wordpress.com')&&(OVER.plan||'Free')==='Free'){OVER.plan='Personal';OVER.planAuto=1}set(v)}};
+  }else if(f==='audience'){
+    pop.innerHTML=`<button class="${S.vis==='public'?'on':''}" data-vis="public">Anyone<small>Public when finished. Visible to everyone and search engines.</small></button><button class="${S.vis==='private'?'on':''}" data-vis="private">Only people I invite<small>Private. Visitors need an invitation to see it.</small></button><input placeholder="Who is it for? (optional)" value="${S.audience==='anyone'?'':S.audience}" style="margin-top:4px">`;
+    pop.onclick=e=>{const b=e.target.closest('button');if(b){OVER.vis=b.dataset.vis;if(b.dataset.vis==='public'&&!pop.querySelector('input').value)delete OVER.audience;closePop();after()}};
+    const inp=pop.querySelector('input');
+    inp.onkeydown=e=>{if(e.key==='Enter'){if(inp.value.trim())OVER.audience=inp.value.trim();else delete OVER.audience;closePop();after()}};
   }else{
     pop.innerHTML=`<input placeholder="${f==='name'?'Site name':'Who is it for?'}" value="${S[f]||''}">`;
     const inp=pop.querySelector('input');
@@ -228,7 +240,7 @@ function done(){
   <h2>${S.name}</h2><p style="color:${dark?'#aaa':'#666'}">${S.audience?'A '+S.type.toLowerCase()+(S.audience==='anyone'?'':' for '+S.audience)+'.':'A '+S.type.toLowerCase()+'.'}</p>
   <div class="hero" style="background:linear-gradient(120deg,${a},${b})"></div></div></div>
   <div class="cta" style="gap:10px"><button class="btn" onclick="alert('Prototype: this would open the editor.')">Open the editor</button><button class="btn ghost" id="again">Start over</button></div>
-  <div class="note">${S.plan} plan${S.domain.endsWith('.wordpress.com')?'':' · '+S.domain+' will be added at checkout'}</div>`;
+  <div class="note">${S.vis==='private'?'Private, invite only':'Public'} · ${S.plan} plan${S.domain.endsWith('.wordpress.com')?'':' · '+S.domain+' will be added at checkout'}</div>`;
   $('#again').onclick=()=>{Object.assign(S,{email:'',idea:'',type:'',name:'',audience:'',style:'',domain:'',plan:''});for(const k in OVER)delete OVER[k];next(0)};
 }
 
