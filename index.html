@@ -155,8 +155,8 @@ function describe(){
   </div>`;
   const ta=$('#ta'),ff=$('#ff'),go=$('#go');
   const rows=[['Type','type'],['Name','name'],['For','audience'],['Style','style'],['Address','domain'],['Plan','plan']];
-  const VIS={public:'public when finished',private:'private, invite only'};
-  function disp(f,p){if(f!=='audience')return p[f];if(p.audience==='anyone')return p.vis==='private'?'Only people you invite, private':'Anyone, public when finished';return p.audience+', '+VIS[p.vis]}
+  const VIS={public:'Public',private:'Private'};
+  function disp(f,p){if(f!=='audience')return p[f];if(p.audience==='anyone')return p.vis==='private'?'Only people you invite (Private)':'Anyone (Public)';return p.audience+' ('+VIS[p.vis]+')'}
   let built=false,prev={};
   const TAG={you:'your edit',words:'from your words',name:'follows the name',auto:'needed for that domain'};
   function draw(){
