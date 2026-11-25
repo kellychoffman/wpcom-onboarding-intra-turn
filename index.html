@@ -156,7 +156,7 @@ function describe(){
   const ta=$('#ta'),ff=$('#ff'),go=$('#go');
   const rows=[['Type','type'],['Name','name'],['For','audience'],['Style','style'],['Address','domain'],['Plan','plan']];
   const VIS={public:'Public',private:'Private'};
-  function disp(f,p){if(f!=='audience')return p[f];if(p.audience==='anyone')return p.vis==='private'?'Only people you invite (Private)':'Anyone (Public)';return p.audience+' ('+VIS[p.vis]+')'}
+  function disp(f,p){if(f!=='audience')return p[f];return p.vis==='private'?'Only people you invite (Private)':'Anyone (Public)'}
   let built=false,prev={};
   const TAG={you:'your edit',words:'from your words',name:'follows the name',auto:'needed for that domain'};
   function draw(){
@@ -205,10 +205,8 @@ function openPop(btn,after){
     pop.innerHTML=opts.map(([d,c])=>`<button data-v="${d}"><span class="t"><span>${d}</span><small>${c}</small></span></button>`).join('');
     pop.onclick=e=>{const b=e.target.closest('button');if(b){const v=b.dataset.v;if(!v.endsWith('.wordpress.com')&&(OVER.plan||'Free')==='Free'){OVER.plan='Personal';OVER.planAuto=1}set(v)}};
   }else if(f==='audience'){
-    pop.innerHTML=`<button class="${S.vis==='public'?'on':''}" data-vis="public">Anyone<small>Public when finished. Visible to everyone and search engines.</small></button><button class="${S.vis==='private'?'on':''}" data-vis="private">Only people I invite<small>Private. Visitors need an invitation to see it.</small></button><input placeholder="Who is it for? (optional)" value="${S.audience==='anyone'?'':S.audience}" style="margin-top:4px">`;
-    pop.onclick=e=>{const b=e.target.closest('button');if(b){OVER.vis=b.dataset.vis;if(b.dataset.vis==='public'&&!pop.querySelector('input').value)delete OVER.audience;closePop();after()}};
-    const inp=pop.querySelector('input');
-    inp.onkeydown=e=>{if(e.key==='Enter'){if(inp.value.trim())OVER.audience=inp.value.trim();else delete OVER.audience;closePop();after()}};
+    pop.innerHTML=`<button class="${S.vis==='public'?'on':''}" data-vis="public">Anyone<small>Public when finished. Visible to everyone and search engines.</small></button><button class="${S.vis==='private'?'on':''}" data-vis="private">Only people I invite<small>Private. Visitors need an invitation to see it.</small></button>`;
+    pop.onclick=e=>{const b=e.target.closest('button');if(b){OVER.vis=b.dataset.vis;closePop();after()}};
   }else{
     pop.innerHTML=`<input placeholder="${f==='name'?'Site name':'Who is it for?'}" value="${S[f]||''}">`;
     const inp=pop.querySelector('input');
